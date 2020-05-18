@@ -19,7 +19,7 @@ public class MyListTests extends CoreTestCase {
             password = "Password1!";
 
     @Test
-    public void testSaveFirstArticleToMyList() throws InterruptedException {
+    public void testSaveFirstArticleToMyList() {
         SearchPageObject SearchPageObject = SearchPageObjectFactory.get(driver);
 
         SearchPageObject.initSearchInput();
@@ -33,7 +33,6 @@ public class MyListTests extends CoreTestCase {
         if (Platform.getInstance().isAndroid()) {
             ArticlePageObject.addArticleToMyList(name_of_folder);
         } else {
-            Thread.sleep(10000);
             ArticlePageObject.addArticlesToMySaved();
         }
 
