@@ -2,10 +2,7 @@ package tests;
 
 import lib.CoreTestCase;
 import lib.Platform;
-import lib.ui.ArticlePageObject;
-import lib.ui.MyListsPageObject;
-import lib.ui.NavigationUI;
-import lib.ui.SearchPageObject;
+import lib.ui.*;
 import lib.ui.factories.ArticlePageObjectFactory;
 import lib.ui.factories.MyListsPageObjectFactory;
 import lib.ui.factories.NavigationUIFactory;
@@ -17,6 +14,9 @@ import java.util.List;
 
 public class MyListTests extends CoreTestCase {
     private static final String name_of_folder = "Learning Programming";
+    private static final String
+            login = "Learnqa18",
+            password = "Password1!";
 
     @Test
     public void testSaveFirstArticleToMyList() throws InterruptedException {
@@ -24,7 +24,7 @@ public class MyListTests extends CoreTestCase {
 
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("Java");
-        SearchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
+        SearchPageObject.clickByArticleWithSubstring("bject-oriented programming language");
 
         ArticlePageObject ArticlePageObject = ArticlePageObjectFactory.get(driver);
         ArticlePageObject.waitForTitleElement();
@@ -33,25 +33,41 @@ public class MyListTests extends CoreTestCase {
         if (Platform.getInstance().isAndroid()) {
             ArticlePageObject.addArticleToMyList(name_of_folder);
         } else {
+            Thread.sleep(10000);
             ArticlePageObject.addArticlesToMySaved();
         }
-        ArticlePageObject.closeArticle();
 
-        if(Platform.getInstance().isIOS()) {
-            SearchPageObject.clickCancelButton();
+        if (Platform.getInstance().isMW()) {
+            AuthorizationPageObject Auth = new AuthorizationPageObject(driver);
+            Auth.clickAuthButton();
+            Auth.enterLogInData(login, password);
+            Auth.submitForm();
+
+            // wait for redirect back to the title
+            ArticlePageObject.waitForTitleElement();
+
+            // check we back to the same page
+            assertEquals(
+                    "We back not to the same page after login.",
+                    article_title,
+                    ArticlePageObject.getArticleTitle()
+            );
+
+            ArticlePageObject.addArticlesToMySaved();
         }
 
+        ArticlePageObject.closeArticle();
+
         NavigationUI NavigationUI = NavigationUIFactory.get(driver);
+        NavigationUI.openNavigation();
         NavigationUI.clickMyLists();
 
         MyListsPageObject MyListsPageObject = MyListsPageObjectFactory.get(driver);
-        if (Platform.getInstance().isIOS()) {
-            MyListsPageObject.clickClosePopUpButton();
-        }
 
         if (Platform.getInstance().isAndroid()){
             MyListsPageObject.openFolderByName(name_of_folder);
         }
+
         MyListsPageObject.swipeByArticleToDelete(article_title);
     }
 
@@ -61,7 +77,7 @@ public class MyListTests extends CoreTestCase {
 
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("Java");
-        SearchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
+        SearchPageObject.clickByArticleWithSubstring("bject-oriented programming language");
 
         ArticlePageObject ArticlePageObject = ArticlePageObjectFactory.get(driver);
 
